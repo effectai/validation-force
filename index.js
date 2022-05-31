@@ -116,7 +116,7 @@ app.get('/assign', async (req, res) => {
 
 async function connectAccount() {
     console.log("Connecting to account")
-    const provider = new JsSignatureProvider([config.privateKey])
+    const provider = new JsSignatureProvider([process.env.PRIVATE_KEY])
     const eos_accnt = {
         accountName: config.accountName,
         permission: config.permission,
