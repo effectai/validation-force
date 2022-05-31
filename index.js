@@ -29,8 +29,7 @@ const config = {
     validator: process.env.VALIDATOR,
     network: process.env.NETWORK,
     accountName: process.env.ACCOUNT_NAME,
-    permission: process.env.PERMISSION,
-    privateKey: process.env.PRIVATE_KEY
+    permission: process.env.PERMISSION
 }
 
 console.log(config)
@@ -121,7 +120,7 @@ async function connectAccount() {
     const eos_accnt = {
         accountName: config.accountName,
         permission: config.permission,
-        privateKey: config.privateKey,
+        privateKey: process.env.PRIVATE_KEY
     }
     const effect_account = await effectsdk.connectAccount(provider, eos_accnt)
     console.log(`Connected to account: ${effect_account.accountName}`)
