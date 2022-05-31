@@ -14,9 +14,6 @@ import {
 
 if (existsSync(".env")) {
     dotenv.config()
-} else {
-    console.log("Please create a .env file")
-    process.exit(1)
 }
 
 const campaign_id = 7
