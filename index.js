@@ -34,11 +34,11 @@ const efx = await connectAccount()
 /**
  * Poll for new submissions and assignqualifications
  */
-await assignQuali()
+// await assignQuali()
 // Poll for submissions
-// setInterval(async () => {
-//     await assignQuali()
-// }, 30e3)
+setInterval(async () => {
+    await assignQuali()
+}, 30e3)
 
 /******************************************************************************
  * SERVER METHODS
