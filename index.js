@@ -1,46 +1,56 @@
 import express from "express"
-import {
-    EffectClient
-} from "@effectai/effect-js"
+import { EffectClient } from "@effectai/effect-js"
 import dotenv from "dotenv"
 import cors from "cors"
 import bodyParse from "body-parser"
-import {
-    existsSync
-} from "fs"
-import {
-    JsSignatureProvider
-} from "eosjs/dist/eosjs-jssig.js"
+import { existsSync, readFileSync } from "fs"
+import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig.js"
 
-if (existsSync(".env")) {
+if (existsSync(".env") && existsSync("./qualifications.json")) {
     dotenv.config()
 } else {
-    console.log("Please create a .env file")
+    console.log("Please create a .env and qualifications.json file")
     process.exit(1)
 }
 
-const campaign_id = 7
-const quali_id = 23
-// So we will have a list of these objects,  quali's and their associated campaigns.
-const qualifications = [{
-    qualification_id: quali_id,
-    campaign_id: campaign_id
-}]
+/**
+ * Super Official Validated Moderated List of Qualifications and their corresponding Campaigns.
+ */
+const qualifications = JSON.parse(readFileSync("./qualifications.json"))
 
-// Destructure config variables
+// Configuration Object
 const config = {
-    validator: process.env.VALIDATOR,
-    network: process.env.NETWORK,
-    accountName: process.env.ACCOUNT_NAME,
-    permission: process.env.PERMISSION,
-    privateKey: process.env.PRIVATE_KEY
+    validator: process.env.VALIDATOR, // Random name for the Validator; Optimus Prime
+    network: process.env.NETWORK, // Network name; testnet or mainnet
+    accountName: process.env.ACCOUNT_NAME, // Account name; the EOSIO account that will be used to sign the transaction 
+    permission: process.env.PERMISSION, // Permission; the permission that will be used to sign the transaction
+    privateKey: process.env.PRIVATE_KEY // Private key; the private key of the account that will be used to sign the transaction
 }
 
-console.log(config)
-
+/**
+ * Start server, connect account.
+ */
 const effectsdk = new EffectClient(config.network)
 const app = setUpServer()
 const efx = await connectAccount()
+
+
+/**
+ * Poll for new submissions and assignqualifications
+ */
+await assignQuali()
+// Poll for submissions
+// setInterval(async () => {
+//     await assignQuali()
+// }, 30e3)
+
+/******************************************************************************
+ * SERVER METHODS
+ *****************************************************************************/
+
+app.get("/", (req, res) => {
+    res.send("🔥")
+})
 
 app.get("/batches", async (req, res) => {
     try {
@@ -54,7 +64,9 @@ app.get("/batches", async (req, res) => {
 
 app.get("/accquali", async (req, res) => {
     try {
-        const result = await effectsdk.force.getAssignedQualifications(389)
+        console.log(req.query)
+        const result = await effectsdk.force.getAssignedQualifications(req.query.account)
+        console.log(result)
         res.json(result)
     } catch (error) {
         console.error(error)
@@ -107,8 +119,8 @@ app.get('/info', async (req, res) => {
 
 app.get('/assign', async (req, res) => {
     try {
-        await assignQuali()
-        res.status(200).send("Assigned Qualification")
+        const response = await assignQuali()
+        res.status(200).json(response)
     } catch (error) {
         console.error(error)
         res.status(500).send(error)
@@ -144,39 +156,44 @@ function setUpServer() {
     return server
 }
 
-// const qualifications = [
-//     {
-//         qualification_id: quali_id,
-//         campaign_id: campaign_id
-//     }
-// ]
+
 async function assignQuali() {
-    console.log(`Assigning qualification for ${JSON.stringify(qualifications, null, 2)}`)
+    // console.log(`Assigning qualification for ${JSON.stringify(qualifications, null, 2)}`)
     // const campaign = await effectsdk.force.getCampaign(qualifications[0].campaign_id)
     // console.log(`Got campaign: ${JSON.stringify(campaign, null, 2)}`)
 
     try {
         // get list of subs
-        const subs = await effectsdk.force.getSubmissions()
-        console.log(`Got submissions:${JSON.stringify(subs, null, 2)}`)
+        // const subs = await effectsdk.force.getSubmissions()
+        // console.log(`Got submissions:${JSON.stringify(subs, null, 2)}`)
 
-        for (const qual of qualifications) {
+        for (const qual of qualifications.list) {
             // get batches for Campaign
+            console.log(`Getting batches for campaign: ${qual.campaign_id}`)
             const batches = await effectsdk.force.getCampaignBatches(qual.campaign_id)
             console.log(`Got batches:\n${JSON.stringify(batches, null, 2)}`)
 
             for (const batch of batches) {
-                const filterSubs = subs.rows.filter(sub => Number(sub.batch_id) === batch.batch_id)
-                console.log(`Filtered Batches ${JSON.stringify(filterSubs, null, 2)}`)
-            
-                for (const sub of filterSubs) {
+                // const filterSubs = subs.rows.filter(sub => Number(sub.batch_id) === batch.batch_id)
+                const submissions = await effectsdk.force.getSubmissionsOfBatch(batch.batch_id)
+                console.log(`Submissions ${JSON.stringify(submissions, null, 2)}`)
+
+                for (const sub of submissions) {
                     // asign quali
-                    console.log(`Assigning qualification to submission\nqualification: ${qual.qualification_id}\naccount: ${sub.account_id}`)
-                    const tx = await effectsdk.force.assignQualification(qual.qualification_id, sub.account_id)
-                    console.log(`Transaction: ${tx.transaction_id}`)
+
+                    const userQuali = await effectsdk.force.getAssignedQualifications(sub.account_id)
+                    console.log(`User qualifications: ${JSON.stringify(userQuali, null, 2)}`)
+
+                    // Make sure that when iterating through the list we only assign the qualification once.
+                    if (!userQuali.some(uq => uq.id === qual.qualification_id)) {
+                        console.log(`Assigning qualification to submission\nqualification: ${qual.qualification_id}\naccount: ${sub.account_id}`)
+                        const tx = await effectsdk.force.assignQualification(qual.qualification_id, sub.account_id)
+                        console.log(`Transaction: ${tx.transaction_id}`)
+                    }
                 }
             }
         }
+        console.log("Done assigning qualifications ✅✅✅")
     } catch (error) {
         console.error(error)
     }
