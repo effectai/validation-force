@@ -8,9 +8,6 @@ import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig.js"
 
 if (existsSync(".env") && existsSync("./qualifications.json")) {
     dotenv.config()
-} else {
-    console.log("Please create a .env and qualifications.json file")
-    process.exit(1)
 }
 
 /**
@@ -20,11 +17,10 @@ const qualifications = JSON.parse(readFileSync("./qualifications.json"))
 
 // Configuration Object
 const config = {
-    validator: process.env.VALIDATOR, // Random name for the Validator; Optimus Prime
-    network: process.env.NETWORK, // Network name; testnet or mainnet
-    accountName: process.env.ACCOUNT_NAME, // Account name; the EOSIO account that will be used to sign the transaction 
-    permission: process.env.PERMISSION, // Permission; the permission that will be used to sign the transaction
-    privateKey: process.env.PRIVATE_KEY // Private key; the private key of the account that will be used to sign the transaction
+    validator: process.env.VALIDATOR,
+    network: process.env.NETWORK,
+    accountName: process.env.ACCOUNT_NAME,
+    permission: process.env.PERMISSION
 }
 
 /**
@@ -132,11 +128,11 @@ app.get('/assign', async (req, res) => {
 
 async function connectAccount() {
     console.log("Connecting to account")
-    const provider = new JsSignatureProvider([config.privateKey])
+    const provider = new JsSignatureProvider([process.env.PRIVATE_KEY])
     const eos_accnt = {
         accountName: config.accountName,
         permission: config.permission,
-        privateKey: config.privateKey,
+        privateKey: process.env.PRIVATE_KEY
     }
     const effect_account = await effectsdk.connectAccount(provider, eos_accnt)
     console.log(`Connected to account: ${effect_account.accountName}`)
