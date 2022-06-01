@@ -5,6 +5,7 @@ import cors from "cors"
 import bodyParse from "body-parser"
 import { existsSync, readFileSync } from "fs"
 import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig.js"
+import { createHash } from "crypto"
 
 if (existsSync(".env") && existsSync("./qualifications.json")) {
     dotenv.config()
@@ -46,6 +47,32 @@ setInterval(async () => {
 
 app.get("/", (req, res) => {
     res.send("🔥")
+})
+
+app.get("/captcha", async (req, res) => {
+    try {
+        const firstLastBytes = 6
+        const secretKey = 'supersecretsauce'
+        
+        const generateRandomString = (len) => {
+            const characters = 'abcdefghijklmnopqrstuvwxyz'
+            const arr = [...Array(len).keys()]
+            return arr.map(() => characters[Math.floor(Math.random() * characters.length)]).join('').toString()
+        }
+        
+        const randomString = 'algocumisa'
+        // const randomString = generateRandomString(42)
+        const hash = createHash('md5').update(randomString + secretKey).digest()
+        
+        const firstHalf = hash.slice(0, firstLastBytes)
+        const lastHalf = hash.slice(hash.length - firstLastBytes, hash.length)
+        const fullHash = Buffer.concat([firstHalf, lastHalf]).toString('base64')
+        
+        res.status(200).send(fullHash)
+    } catch (error) {
+        console.error(error)
+        res.status(500).send(error)
+    }    
 })
 
 app.get("/batches", async (req, res) => {
