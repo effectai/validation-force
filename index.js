@@ -131,7 +131,7 @@ async function connectAccount() {
 function setUpServer() {
     console.log("Setting up server")
     const server = express()
-    const port = process.env.PORT || 3000
+    const port = process.env.PORT || 3030
     server.use(cors())
     server.use(bodyParse.json())
     server.use(bodyParse.urlencoded({
@@ -171,7 +171,7 @@ async function assignQuali() {
                 }
             }
         }
-        console.log("Done assigning qualifications ✅✅✅")
+        console.log(`Done assigning qualifications ✅✅✅ ${new Date()}`)
     } catch (error) {
         console.error(error)
     }
