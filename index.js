@@ -80,17 +80,6 @@ app.get("/subs", async (req, res) => {
     }
 })
 
-app.get("/taskcomplete", async (req, res) => {
-    try {
-        const workerDidTask = await effectsdk.force.didWorkerDoTask(idx, key)
-        // Kico mi ta wardando aki nan? 
-        // Mi ta sinti cu aki nan mi ta suppos di hanja un boolean.
-
-    } catch (error) {
-        console.error(error)
-        res.status(500).send(error)
-    }
-})
 
 app.get('/allquali', async (req, res) => {
     try {
@@ -106,7 +95,7 @@ app.get('/info', async (req, res) => {
     try {
         const info = await effectsdk.config
         delete info.web3
-        res.json(JSON.stringify(info))
+        res.json(info)
     } catch (error) {
         console.error(error)
         res.status(500).json(error)
@@ -154,37 +143,30 @@ function setUpServer() {
 
 
 async function assignQuali() {
-    // console.log(`Assigning qualification for ${JSON.stringify(qualifications, null, 2)}`)
-    // const campaign = await effectsdk.force.getCampaign(qualifications[0].campaign_id)
-    // console.log(`Got campaign: ${JSON.stringify(campaign, null, 2)}`)
-
     try {
-        // get list of subs
-        // const subs = await effectsdk.force.getSubmissions()
-        // console.log(`Got submissions:${JSON.stringify(subs, null, 2)}`)
 
         for (const qual of qualifications.list) {
-            // get batches for Campaign
-            console.log(`Getting batches for campaign: ${qual.campaign_id}`)
+
+            // console.log(`Getting batches for campaign: ${qual.campaign_id}`)
             const batches = await effectsdk.force.getCampaignBatches(qual.campaign_id)
-            console.log(`Got batches:\n${JSON.stringify(batches, null, 2)}`)
+            // console.log(`Got batches:\n${JSON.stringify(batches, null, 2)}`)
 
             for (const batch of batches) {
-                // const filterSubs = subs.rows.filter(sub => Number(sub.batch_id) === batch.batch_id)
+
                 const submissions = await effectsdk.force.getSubmissionsOfBatch(batch.batch_id)
-                console.log(`Submissions ${JSON.stringify(submissions, null, 2)}`)
+                // console.log(`Submissions ${JSON.stringify(submissions, null, 2)}`)
 
                 for (const sub of submissions) {
-                    // asign quali
 
+                    // Get list of assigned qualifications for user.
                     const userQuali = await effectsdk.force.getAssignedQualifications(sub.account_id)
-                    console.log(`User qualifications: ${JSON.stringify(userQuali, null, 2)}`)
+                    // console.log(`User qualifications: ${JSON.stringify(userQuali, null, 2)}`)
 
                     // Make sure that when iterating through the list we only assign the qualification once.
                     if (!userQuali.some(uq => uq.id === qual.qualification_id)) {
-                        console.log(`Assigning qualification to submission\nqualification: ${qual.qualification_id}\naccount: ${sub.account_id}`)
+                        // console.log(`Assigning qualification to submission\nqualification: ${qual.qualification_id}\naccount: ${sub.account_id}`)
                         const tx = await effectsdk.force.assignQualification(qual.qualification_id, sub.account_id)
-                        console.log(`Transaction: ${tx.transaction_id}`)
+                        // console.log(`Transaction: ${tx.transaction_id}`)
                     }
                 }
             }
