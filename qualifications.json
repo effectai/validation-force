@@ -1,6 +1,20 @@
-{   
-    "list": [
-        { "qualification_id": 23, "campaign_id": 7 },
-        { "qualification_id": 25, "campaign_id": 9 }
-    ]
-}
+[
+    { 
+        "campaign_id": 7,
+        "approve_qualification_id": 230,
+        "reject_qualification_id": 230,
+        "validate_function": "return submission === answer;",
+        "threshold": 0.8,
+        "answers": {"identity":"flag","alphabet":"x","bird":"Cockatoo","peterpan":"RobinWilliams","shiver":"boots","curse":"pearl","timespent":"islands","realpirate":"JackBlack","dangerlaugh":"funnythings","swabdecks":"cleanfloors","hoistsails":"sellparrots","blackbeardshortbeard":"beardno","famouscapn":"famousyes","scallywags":"scallyyes","strumpets":"strumpetyes"}
+    },
+    { 
+        "campaign_id": 9,
+        "approve_qualification_id": 250,
+        "reject_qualification_id": 250,
+        "validate_function": "return submission === answer;",
+        "threshold": 1,
+        "answers": {
+            "sentiment": "neutral"
+        }
+    }
+]
