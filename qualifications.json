@@ -1,11 +1,11 @@
 [
     { 
-        "campaign_id": 7,
+        "campaign_id": 4,
         "approve_qualification_id": 23,
-        "reject_qualification_id": 23,
-        "validate_function": "return submission === answer;",
+        "reject_qualification_id": 24,
+        "validate_function": "return submission.toLowerCase() === answer.toLowerCase();",
         "threshold": 0.8,
-        "answers": {"identity":"flag","alphabet":"x","bird":"Cockatoo","peterpan":"RobinWilliams","shiver":"boots","curse":"pearl","timespent":"islands","realpirate":"JackBlack","dangerlaugh":"funnythings","swabdecks":"cleanfloors","hoistsails":"sellparrots","blackbeardshortbeard":"beardno","famouscapn":"famousyes","scallywags":"scallyyes","strumpets":"strumpetyes"}
+        "answers": {"identity":"roger","alphabet":"x","bird":"Parrot","peterpan":"RobinWilliams","shiver":"timbers","curse":"pearl","timespent":"oceans","realpirate":"BlackBeard","dangerlaugh":"facedanger","swabdecks":"cleanfloors","hoistsails":"moveboat","blackbeardshortbeard":"beardno","famouscapn":"famousyes","scallywags":"scallyno","strumpets":"strumpetyes"}
     },
     { 
         "campaign_id": 9,
