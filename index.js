@@ -6,14 +6,14 @@ import bodyParse from "body-parser"
 import { existsSync, readFileSync } from "fs"
 import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig.js"
 
-if (existsSync(".env") && existsSync("./qualifications.json")) {
+if (existsSync(".env")) {
     dotenv.config()
 }
 
 /**
  * Super Official Validated Moderated List of Qualifications and their corresponding Campaigns.
  */
-const qualifications = JSON.parse(readFileSync("./qualifications.json"))
+const qualifications = JSON.parse(readFileSync((process.env.QUALIFIERS || "./qualifiers.json")))
 
 // Configuration Object
 const config = {
@@ -162,7 +162,7 @@ async function assignQuali() {
                     // console.log(`User qualifications: ${JSON.stringify(userQuali, null, 2)}`)
 
                     // Make sure that when iterating through the list we only assign the qualification once.
-                    if (!userQuali.some(uq => uq.id === qual.approve_qualification_id || uq.id === qual.reject_qualification_id)) {
+                    if (sub.data && !userQuali.some(uq => uq.id === qual.approve_qualification_id || uq.id === qual.reject_qualification_id)) {
                         let givenAnswers = JSON.parse(sub.data)
                         if (givenAnswers.ipfs) {
                             givenAnswers = await effectsdk.force.getIpfsContent(givenAnswers.ipfs)
