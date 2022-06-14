@@ -1,0 +1,12 @@
+[
+    { 
+        "campaign_id": 9,
+        "approve_qualification_id": 25,
+        "reject_qualification_id": 25,
+        "validate_function": "return submission === answer;",
+        "threshold": 1,
+        "answers": {
+            "sentiment": "neutral"
+        }
+    }
+]
