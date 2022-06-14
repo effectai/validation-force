@@ -1,8 +1,8 @@
 [
     { 
         "campaign_id": 4,
-        "approve_qualification_id": -1,
-        "reject_qualification_id": -1,
+        "approve_qualification_id": 2,
+        "reject_qualification_id": 3,
         "validate_function": "return submission.toLowerCase() === answer.toLowerCase();",
         "threshold": 0.8,
         "answers": {"identity":"roger","alphabet":"x","bird":"Parrot","peterpan":"RobinWilliams","shiver":"timbers","curse":"pearl","timespent":"oceans","realpirate":"BlackBeard","dangerlaugh":"facedanger","swabdecks":"cleanfloors","hoistsails":"moveboat","blackbeardshortbeard":"beardno","famouscapn":"famousyes","scallywags":"scallyno","strumpets":"strumpetyes"}
