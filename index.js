@@ -5,7 +5,10 @@ import cors from "cors"
 import bodyParse from "body-parser"
 import { existsSync, readFileSync } from "fs"
 import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig.js"
-import { createHash } from "crypto"
+import captcha, { cleanList, createCaptcha, verifyCaptcha } from "./captcha.js"
+import cron from "node-cron"
+import { urlCaptcha } from "./captcha.js"
+// import knex from "knex"
 
 if (existsSync(".env") && existsSync("./qualifications.json")) {
     dotenv.config()
@@ -21,7 +24,10 @@ const config = {
     validator: process.env.VALIDATOR,
     network: process.env.NETWORK,
     accountName: process.env.ACCOUNT_NAME,
-    permission: process.env.PERMISSION
+    permission: process.env.PERMISSION,
+    captchaSecret: process.env.CAPTCHA_SECRET,
+    captchaUser: process.env.CAPTCHA_USER,
+    captchaChars: process.env.CAPTCHA_CHARS,
 }
 
 /**
@@ -35,11 +41,8 @@ const efx = await connectAccount()
 /**
  * Poll for new submissions and assignqualifications
  */
-// await assignQuali()
-// Poll for submissions
-setInterval(async () => {
-    await assignQuali()
-}, 30e3)
+const schedule = "30 * * * * *" // Every 30 seconds
+cron.schedule(schedule, async () => await assignQuali())
 
 /******************************************************************************
  * SERVER METHODS
@@ -51,28 +54,25 @@ app.get("/", (req, res) => {
 
 app.get("/captcha", async (req, res) => {
     try {
-        const firstLastBytes = 6
-        const secretKey = 'supersecretsauce'
-        
-        const generateRandomString = (len) => {
-            const characters = 'abcdefghijklmnopqrstuvwxyz'
-            const arr = [...Array(len).keys()]
-            return arr.map(() => characters[Math.floor(Math.random() * characters.length)]).join('').toString()
-        }
-        
-        const randomString = 'algocumisa'
-        // const randomString = generateRandomString(42)
-        const hash = createHash('md5').update(randomString + secretKey).digest()
-        
-        const firstHalf = hash.slice(0, firstLastBytes)
-        const lastHalf = hash.slice(hash.length - firstLastBytes, hash.length)
-        const fullHash = Buffer.concat([firstHalf, lastHalf]).toString('base64')
-        
-        res.status(200).send(fullHash)
+        const captchaurl = await urlCaptcha()
+        res.send(captchaurl)
+        res.send(captchaImage)
     } catch (error) {
         console.error(error)
         res.status(500).send(error)
     }    
+})
+
+app.post("/verify", async (req, res) => {
+    try {
+        const { captcha } = req.body
+        const isValid = await verifyCaptcha(captcha)
+        await cleanList()
+        res.send({isValid})
+    } catch (error) {
+        console.error(error)
+        res.status(500).send(error)
+    }
 })
 
 app.get("/batches", async (req, res) => {
@@ -139,9 +139,6 @@ app.get('/assign', async (req, res) => {
     }
 })
 
-
-
-
 async function connectAccount() {
     console.log("Connecting to account")
     const provider = new JsSignatureProvider([process.env.PRIVATE_KEY])
@@ -167,7 +164,6 @@ function setUpServer() {
     server.listen(port, () => console.log(`Server is running on port ${port}!`))
     return server
 }
-
 
 async function assignQuali() {
     try {
@@ -198,7 +194,7 @@ async function assignQuali() {
                 }
             }
         }
-        console.log(`Done assigning qualifications ✅✅✅ ${new Date()}`)
+        console.log(`✅ Done assigning qualifications ${new Date()}`)
     } catch (error) {
         console.error(error)
     }
