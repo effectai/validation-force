@@ -105,3 +105,4 @@ dist
 .vscode/extensions.json
 db.sqlite
 test.js
+proto.knex.js
