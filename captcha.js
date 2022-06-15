@@ -12,17 +12,13 @@ const config = {
   captchaUser: process.env.CAPTCHA_USER, //Captcha User Name
   captchaChars: process.env.CAPTCHA_CHARS, //Captcha Characters,
   letters: Number(process.env.CAPTCHA_LETTERS), //Captcha Letters aka length of captcha
+  expirationTime: Number(process.env.CAPTCHA_EXPIRATION_TIME), //Captcha Expiration Time in minutes
 };
 
 const generateRandomString = () => {
   const arr = [...Array(config.captchaChars.length).keys()];
   return arr
-    .map(
-      () =>
-        config.captchaChars[
-          Math.floor(Math.random() * config.captchaChars.length)
-        ]
-    )
+    .map(() => config.captchaChars[Math.floor(Math.random() * config.captchaChars.length)])
     .join("")
     .toString();
 };
@@ -49,8 +45,8 @@ export const createCaptcha = async () => {
   // Loop over the hash and convert each byte to a character, then join the characters
   let decodedArray = [];
   for (const buf of slicedHash.entries()) {
-    const remainder = buf.pop() % chars.length;
-    const char = chars[remainder];
+    const remainder = buf.pop() % config.captchaChars.length;
+    const char = config.captchaChars[remainder];
     decodedArray.push(char);
   }
   const captcha = decodedArray.join("");
@@ -59,7 +55,7 @@ export const createCaptcha = async () => {
   // Prep the data to store it in memory, with its expiration time.
   // We need to keep track of the captcha, that is what we are going to test against
   // This part should be removed into it's own function
-  const expirationTime = 1000 * 2 * 60 // 2 minutes
+  const expirationTime = config.expirationTime * 1000 * 60 // Convert to milliseconds
   const expire = Date.now() + expirationTime;
   const tmpList = await fs.readJSON(tmpFile).catch(console.error);
   tmpList.push({ captcha, expire });
