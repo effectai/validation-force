@@ -10,14 +10,14 @@ import cron from "node-cron"
 import { urlCaptcha } from "./captcha.js"
 // import knex from "knex"
 
-if (existsSync(".env") && existsSync("./qualifications.json")) {
+if (existsSync(".env")) {
     dotenv.config()
 }
 
 /**
  * Super Official Validated Moderated List of Qualifications and their corresponding Campaigns.
  */
-const qualifications = JSON.parse(readFileSync("./qualifications.json"))
+const qualifications = JSON.parse(readFileSync((process.env.QUALIFIERS || "./qualifiers.json")))
 
 // Configuration Object
 const config = {
@@ -36,6 +36,7 @@ const config = {
 const effectsdk = new EffectClient(config.network)
 const app = setUpServer()
 const efx = await connectAccount()
+await assignQuali()
 
 
 /**
@@ -178,28 +179,46 @@ function setUpServer() {
 async function assignQuali() {
     try {
 
-        for (const qual of qualifications.list) {
+        for (const qual of qualifications) {
 
-            // console.log(`Getting batches for campaign: ${qual.campaign_id}`)
+            console.log(`Getting batches for campaign: ${qual.campaign_id}`)
             const batches = await effectsdk.force.getCampaignBatches(qual.campaign_id)
             // console.log(`Got batches:\n${JSON.stringify(batches, null, 2)}`)
-
+            const validate = new Function('submission', 'answer', qual.validate_function);
             for (const batch of batches) {
-
                 const submissions = await effectsdk.force.getSubmissionsOfBatch(batch.batch_id)
                 // console.log(`Submissions ${JSON.stringify(submissions, null, 2)}`)
 
                 for (const sub of submissions) {
-
                     // Get list of assigned qualifications for user.
                     const userQuali = await effectsdk.force.getAssignedQualifications(sub.account_id)
                     // console.log(`User qualifications: ${JSON.stringify(userQuali, null, 2)}`)
 
                     // Make sure that when iterating through the list we only assign the qualification once.
-                    if (!userQuali.some(uq => uq.id === qual.qualification_id)) {
-                        // console.log(`Assigning qualification to submission\nqualification: ${qual.qualification_id}\naccount: ${sub.account_id}`)
-                        const tx = await effectsdk.force.assignQualification(qual.qualification_id, sub.account_id)
-                        // console.log(`Transaction: ${tx.transaction_id}`)
+                    if (sub.data && !userQuali.some(uq => uq.id === qual.approve_qualification_id || uq.id === qual.reject_qualification_id)) {
+                        let givenAnswers = JSON.parse(sub.data)
+                        if (givenAnswers.ipfs) {
+                            givenAnswers = await effectsdk.force.getIpfsContent(givenAnswers.ipfs)
+                        }
+                        // console.log("givenAnswers", givenAnswers)
+
+                        let correct = 0
+                        let wrong = 0
+
+                        for (const key in qual.answers) {
+                            validate(givenAnswers[key], qual.answers[key]) ? correct++ : wrong++
+                        }
+                        const score = correct / (correct+wrong)
+                        console.log("score", score, "treshold", qual.threshold)
+                        if (score >= qual.threshold) {
+                            console.log('APPROVED', `Assigning approve qualification to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`)
+                            const tx = await effectsdk.force.assignQualification(qual.approve_qualification_id, sub.account_id)
+                            console.log(`Transaction: ${tx.transaction_id}`)
+                        } else {
+                            console.error('REJECTED', `Assigning reject qualification to submission\nqualification: ${qual.reject_qualification_id}\naccount: ${sub.account_id}`)
+                            const tx = await effectsdk.force.assignQualification(qual.reject_qualification_id, sub.account_id)
+                            console.log(`Transaction: ${tx.transaction_id}`)
+                        }
                     }
                 }
             }
