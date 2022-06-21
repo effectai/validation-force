@@ -5,9 +5,9 @@ import cors from "cors"
 import bodyParse from "body-parser"
 import { existsSync, readFileSync } from "fs"
 import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig.js"
-import captcha, { cleanList, generateCaptcha, verifyCaptcha } from "./captcha.js"
+import captcha, { generateCaptcha, urlCaptcha, verifyCaptcha } from "./captcha.js"
 import cron from "node-cron"
-import { urlCaptcha } from "./captcha.js"
+import { generateRandomCaptcha } from "./lab.js"
 // import knex from "knex"
 
 if (existsSync(".env")) {
@@ -31,17 +31,16 @@ const config = {
 }
 
 /**
- * Start server, connect account.
+ * Set up, Start server, connect account.
  */
 const effectsdk = new EffectClient(config.network)
 const app = setUpServer()
 const efx = await connectAccount()
-await assignQuali()
 
-
-/**
+/******************************************************************************
+ * THE MAIN SHOW
  * Poll for new submissions and assignqualifications
- */
+ *****************************************************************************/
 const schedule = "30 * * * * *" // Every 30 seconds
 cron.schedule(schedule, async () => await assignQuali())
 
@@ -56,13 +55,8 @@ app.get("/", (req, res) => {
 // Use to generateCaptcha
 app.get("/captcha", async (req, res) => {
     try {
-        console.log(req)
-        // const captchaurl = await urlCaptcha()
-        // const { campaign_id, batch_id, task_id } = req.query
-        const { campaign_id, batch_id, task_id } = {campaign_id: '1', batch_id: '12', task_id:  '123'}
-        const captchaString = await generateCaptcha(`${campaign_id}${batch_id}${task_id}`)
-        const captchaUrl = urlCaptcha(captchaString)
-        console.log(`Captcha URL: ${captchaUrl}`)
+        const captchaUrl = urlCaptcha()
+        // console.log(`Captcha URL: ${captchaUrl}`)
         res.json(captchaUrl)
     } catch (error) {
         console.error(error)
@@ -74,11 +68,8 @@ app.post("/verify", async (req, res) => {
     try {
         //inputForCaptcha, generatedCaptcha
         const { input, captcha } = req.body
-        const validCaptcha = await generateCaptcha(input)
-        
-        // Check that userInput and generatedCaptcha are the same.
-        const isValid = validCaptcha === captcha
-        console.log(`Input: ${input}, Captcha: ${captcha}, ValidCaptcha: ${validCaptcha} is valid: ${isValid}`)
+        const isValid = verifyCaptcha(input, captcha)
+        // console.log(`Input: ${input}, Captcha: ${captcha}, is valid: ${isValid}`)
         res.send({ isValid })
     } catch (error) {
         console.error(error)
