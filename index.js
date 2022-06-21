@@ -7,7 +7,6 @@ import { existsSync, readFileSync } from "fs"
 import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig.js"
 import captcha, { generateCaptcha, urlCaptcha, verifyCaptcha } from "./captcha.js"
 import cron from "node-cron"
-import { generateRandomCaptcha } from "./lab.js"
 // import knex from "knex"
 
 if (existsSync(".env")) {
