@@ -5,9 +5,9 @@ import cors from "cors"
 import bodyParse from "body-parser"
 import { existsSync, readFileSync } from "fs"
 import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig.js"
-import captcha, { generateCaptcha, urlCaptcha, verifyCaptcha } from "./captcha.js"
+import { generateCaptcha, urlCaptcha, verifyCaptcha } from "./captcha.js"
 import cron from "node-cron"
-// import knex from "knex"
+
 
 if (existsSync(".env")) {
     dotenv.config()
