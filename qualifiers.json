@@ -8,5 +8,21 @@
         "answers": {
             "sentiment": "neutral"
         }
+    },
+    {
+        "campaign_id": 14,
+        "approve_qualification_id": 31,
+        "reject_qualification_id": 32,
+        "validate_function": 
+        `
+        const s = submission;
+        const a = answer;
+        const verifysubs = a.calcmul === s.calcmul && a.humanint === s.humanint && a.humantxt.toString() === s.humantxt.toString() && a.humanfriendyes === s.humanfriendyes && a.humanSlider > s.humanSlider
+        
+        `,
+        "threshold": 1,
+        "answers": {
+            "calcmul":"27","humanint":"1","humantxt":"Yes","humanfriendyes":true,"overoveryes":true,"ballofwool":true,"humanSlider":"75","captchainput":"","captchaPath":"  "
+        }
     }
 ]

@@ -34,7 +34,7 @@ const config = {
  */
 const effectsdk = new EffectClient(config.network)
 const app = setUpServer()
-const efx = await connectAccount()
+const efx = await connectAccount().catch(console.error)
 
 /******************************************************************************
  * THE MAIN SHOW
@@ -48,7 +48,7 @@ cron.schedule(schedule, async () => await assignQuali())
  *****************************************************************************/
 
 app.get("/", (req, res) => {
-    res.json("🔥")
+    res.json("🔥").catch(console.error)
 })
 
 // Use to generateCaptcha
@@ -56,7 +56,7 @@ app.get("/captcha", async (req, res) => {
     try {
         const captchaUrl = urlCaptcha()
         // console.log(`Captcha URL: ${captchaUrl}`)
-        res.json(captchaUrl)
+        res.status(200).json(captchaUrl)
     } catch (error) {
         console.error(error)
         res.status(500).send(error)
@@ -69,7 +69,7 @@ app.post("/verify", async (req, res) => {
         const { input, captcha } = req.body
         const isValid = verifyCaptcha(input, captcha)
         // console.log(`Input: ${input}, Captcha: ${captcha}, is valid: ${isValid}`)
-        res.send({ isValid })
+        res.status.json({ isValid })
     } catch (error) {
         console.error(error)
         res.status(500).send(`Error: Something went wrong when verifying captcha.`)
@@ -141,29 +141,37 @@ app.get('/assign', async (req, res) => {
 })
 
 async function connectAccount() {
-    console.log("Connecting to account")
-    const provider = new JsSignatureProvider([process.env.PRIVATE_KEY])
-    const eos_accnt = {
-        accountName: config.accountName,
-        permission: config.permission,
-        privateKey: process.env.PRIVATE_KEY
+    try {
+        console.log("Connecting to account")
+        const provider = new JsSignatureProvider([process.env.PRIVATE_KEY])
+        const eos_accnt = {
+            accountName: config.accountName,
+            permission: config.permission,
+            privateKey: process.env.PRIVATE_KEY
+        }
+        const effect_account = await effectsdk.connectAccount(provider, eos_accnt)
+        console.log(`Connected to account: ${effect_account.accountName}`)
+        return effect_account        
+    } catch (error) {
+        console.error('⚠ connectAccount', error)
     }
-    const effect_account = await effectsdk.connectAccount(provider, eos_accnt)
-    console.log(`Connected to account: ${effect_account.accountName}`)
-    return effect_account
 }
 
 function setUpServer() {
-    console.log("Setting up server")
-    const server = express()
-    const port = process.env.PORT || 3030
-    server.use(cors())
-    server.use(bodyParse.json())
-    server.use(bodyParse.urlencoded({
-        extended: true
-    }))
-    server.listen(port, () => console.log(`Server is running on port ${port}!`))
-    return server
+    try {
+        console.log("Setting up server")
+        const server = express()
+        const port = process.env.PORT || 3030
+        server.use(cors())
+        server.use(bodyParse.json())
+        server.use(bodyParse.urlencoded({
+            extended: true
+        }))
+        server.listen(port, () => console.log(`Server is running on port ${port}!`))
+        return server        
+    } catch (error) {
+        console.error('⚠ setupServer', error)
+    }
 }
 
 async function assignQuali() {
@@ -215,6 +223,6 @@ async function assignQuali() {
         }
         console.log(`✅ Done assigning qualifications ${new Date()}`)
     } catch (error) {
-        console.error(error)
+        console.error('⚠ AssignQuali', error)
     }
 }

@@ -26,7 +26,7 @@ const generateRandomString = () => {
  * @param {String} inputString User input string to be hashed into a captcha.
  * @returns 
  */
-export const generateCaptcha = async (inputString) => {
+export const generateCaptcha = (inputString) => {
     const inputFormat = `${config.captchaSecret}${inputString}:${config.captchaChars}:${config.letters}`
 
     // Hash the input
