@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from "fs"
 import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig.js"
 import { generateCaptcha, urlCaptcha, verifyCaptcha } from "./captcha.js"
 import cron from "node-cron"
-
+const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
 
 if (existsSync(".env")) {
     dotenv.config()
