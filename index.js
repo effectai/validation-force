@@ -5,6 +5,9 @@ import cors from "cors"
 import bodyParse from "body-parser"
 import { existsSync, readFileSync } from "fs"
 import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig.js"
+import captcha, { generateCaptcha, urlCaptcha, verifyCaptcha } from "./captcha.js"
+import cron from "node-cron"
+// import knex from "knex"
 
 if (existsSync(".env")) {
     dotenv.config()
@@ -20,33 +23,57 @@ const config = {
     validator: process.env.VALIDATOR,
     network: process.env.NETWORK,
     accountName: process.env.ACCOUNT_NAME,
-    permission: process.env.PERMISSION
+    permission: process.env.PERMISSION,
+    captchaSecret: process.env.CAPTCHA_SECRET,
+    captchaUser: process.env.CAPTCHA_USER,
+    captchaChars: process.env.CAPTCHA_CHARS,
 }
 
 /**
- * Start server, connect account.
+ * Set up, Start server, connect account.
  */
 const effectsdk = new EffectClient(config.network)
 const app = setUpServer()
 const efx = await connectAccount()
-await assignQuali()
 
-
-/**
+/******************************************************************************
+ * THE MAIN SHOW
  * Poll for new submissions and assignqualifications
- */
-// await assignQuali()
-// Poll for submissions
-setInterval(async () => {
-    await assignQuali()
-}, 30e3)
+ *****************************************************************************/
+const schedule = "30 * * * * *" // Every 30 seconds
+cron.schedule(schedule, async () => await assignQuali())
 
 /******************************************************************************
  * SERVER METHODS
  *****************************************************************************/
 
 app.get("/", (req, res) => {
-    res.send("🔥")
+    res.json("🔥")
+})
+
+// Use to generateCaptcha
+app.get("/captcha", async (req, res) => {
+    try {
+        const captchaUrl = urlCaptcha()
+        // console.log(`Captcha URL: ${captchaUrl}`)
+        res.json(captchaUrl)
+    } catch (error) {
+        console.error(error)
+        res.status(500).send(error)
+    }
+})
+
+app.post("/verify", async (req, res) => {
+    try {
+        //inputForCaptcha, generatedCaptcha
+        const { input, captcha } = req.body
+        const isValid = verifyCaptcha(input, captcha)
+        // console.log(`Input: ${input}, Captcha: ${captcha}, is valid: ${isValid}`)
+        res.send({ isValid })
+    } catch (error) {
+        console.error(error)
+        res.status(500).send(`Error: Something went wrong when verifying captcha.`)
+    }
 })
 
 app.get("/batches", async (req, res) => {
@@ -94,7 +121,7 @@ app.get('/allquali', async (req, res) => {
 
 app.get('/info', async (req, res) => {
     try {
-        const info = await effectsdk.config
+        const info = effectsdk.config
         delete info.web3
         res.json(info)
     } catch (error) {
@@ -112,9 +139,6 @@ app.get('/assign', async (req, res) => {
         res.status(500).send(error)
     }
 })
-
-
-
 
 async function connectAccount() {
     console.log("Connecting to account")
@@ -141,7 +165,6 @@ function setUpServer() {
     server.listen(port, () => console.log(`Server is running on port ${port}!`))
     return server
 }
-
 
 async function assignQuali() {
     try {
@@ -190,7 +213,7 @@ async function assignQuali() {
                 }
             }
         }
-        console.log(`Done assigning qualifications ✅✅✅ ${new Date()}`)
+        console.log(`✅ Done assigning qualifications ${new Date()}`)
     } catch (error) {
         console.error(error)
     }
