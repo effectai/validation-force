@@ -182,7 +182,7 @@ async function assignQuali() {
             console.log(`Getting batches for campaign: ${qual.campaign_id}`)
             const batches = await effectsdk.force.getCampaignBatches(qual.campaign_id)
             // console.log(`Got batches:\n${JSON.stringify(batches, null, 2)}`)
-            const validate = new Function('submission', 'answer', qual.validate_function);
+            const validate = new AsyncFunction('submission', 'answer', 'key', 'forceInfo', qual.validate_function);
             for (const batch of batches) {
                 const submissions = await effectsdk.force.getSubmissionsOfBatch(batch.batch_id)
                 // console.log(`Submissions ${JSON.stringify(submissions, null, 2)}`)
@@ -199,16 +199,27 @@ async function assignQuali() {
                             givenAnswers = await effectsdk.force.getIpfsContent(givenAnswers.ipfs)
                         }
                         // console.log("givenAnswers", givenAnswers)
-
-                        let correct = 0
-                        let wrong = 0
-
-                        for (const key in qual.answers) {
-                            validate(givenAnswers[key], qual.answers[key]) ? correct++ : wrong++
+                        const forceInfo = {
+                            accountId: sub.account_id,
+                            submissionId: sub.id,
+                            campaignId: qual.campaign_id,
+                            batchNumber: batch.id,
+                            batchId: batch.batch_id
                         }
-                        const score = correct / (correct+wrong)
-                        console.log("score", score, "treshold", qual.threshold)
-                        if (score >= qual.threshold) {
+                        let score;
+                        if (qual.auto_loop) {
+                            let correct = 0
+                            let wrong = 0
+
+                            for (const key in qual.answers) {
+                                (await validate(givenAnswers[key], qual.answers[key], key, forceInfo)) ? correct++ : wrong++
+                            }
+                            score = correct / (correct+wrong)
+                            console.log("score", score, "treshold", qual.threshold)
+                        } else {
+                            score = await validate(givenAnswers, qual.answers, null, forceInfo)
+                        }
+                        if (qual.auto_loop ? score >= qual.threshold : score) {
                             console.log('APPROVED', `Assigning approve qualification to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`)
                             const tx = await effectsdk.force.assignQualification(qual.approve_qualification_id, sub.account_id)
                             console.log(`Transaction: ${tx.transaction_id}`)
