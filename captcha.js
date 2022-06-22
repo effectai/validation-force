@@ -1,8 +1,17 @@
 import { createHash } from "crypto"
 import dotenv from "dotenv"
+import { existsSync } from "fs"
 
 // Configuration Object
-dotenv.config()
+if (process.env.DEV_ENV === 'dev' && existsSync('.testnet.env')) {
+    console.log('Loading .testnet.env')
+    dotenv.config({path: '.testnet.env', debug: true})
+} else {
+    if (existsSync(".env")) {
+        console.log('Loading .env')
+        dotenv.config({path: ".env", debug: true})
+    }
+}
 const config = {
     captchaSecret: process.env.CAPTCHA_SECRET, //Captcha Secret Key
     captchaUser: process.env.CAPTCHA_USER, //Captcha User Name

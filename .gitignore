@@ -106,3 +106,4 @@ dist
 db.sqlite
 test.js
 proto.knex.js
+.testnet.env
