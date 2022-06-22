@@ -17,7 +17,6 @@ const config = {
     captchaUser: process.env.CAPTCHA_USER, //Captcha User Name
     captchaChars: process.env.CAPTCHA_CHARS, //Captcha Characters,
     letters: Number(process.env.CAPTCHA_LETTERS), //Captcha Letters aka length of captcha
-    expirationTime: Number(process.env.EXPIRATION_TIME), //Captcha Expiration Time in minutes
 }
 
 /** 
