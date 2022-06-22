@@ -14,10 +14,10 @@
         "campaign_id": 14,
         "approve_qualification_id": 31,
         "reject_qualification_id": 32,
-        "validate_function": "const s = submissions;\r\n    const a = answers;\r\n    const captchaPath = \"\" + forceInfo.campaignId + forceInfo.batchId + forceInfo.accountId + forceInfo.submissionId;\r\n    const isValid = verifyCaptcha(captchaPath, submissions.captchainput);\r\n    return isValid && a.calcmul === s.calcmul && a.humanint === s.humanint && a.humantxt?.toString() === s.humantxt?.toString() && a.humanfriendyes === s.humanfriendyes && a.humanSlider > s.humanSlider",
+        "validate_function": "const s = submissions;\r\n    const a = answers;\r\n console.log('⚠⚠⚠⚠subsans', s, a);\r\n    const captchaPath = \"\" + forceInfo.campaignId + forceInfo.batchId + forceInfo.accountId + forceInfo.submissionId;\r\n  console.log('🎏🎏🎏🎏', captchaPath);\r\n   const isValid = verifyCaptcha(captchaPath, submissions.captchainput);\r\n    return isValid && a.calcmul === s.calcmul && a.humanint === s.humanint && a.humantxt?.toString() === s.humantxt?.toString() && a.humanfriendyes === s.humanfriendyes && a.humanSlider > s.humanSlider",
         "auto_loop": false,
         "answers": {
-            "calcmul":"27","humanint":"1","humantxt":"Yes","humanfriendyes":true,"overoveryes":true,"ballofwool":true,"humanSlider":"75","captchainput":"","captchaPath":"  "
+            "calcmul":"27","humanint":"1","humantxt":"Yes","humanfriendyes":true,"overoveryes":true,"ballofwool":true,"humanSlider":"75"
         }
     }
 ]
