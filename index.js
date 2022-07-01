@@ -184,6 +184,7 @@ function setUpServer() {
 }
 
 async function assignQuali() {
+    console.log("checking for submissions to assign qualifications..")
     try {
 
         for (const qual of qualifications) {
