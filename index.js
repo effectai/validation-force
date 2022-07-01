@@ -235,7 +235,7 @@ async function assignQuali() {
                         }
                         if (qual.auto_loop ? score >= qual.threshold : score) {
                             try {
-                                // console.log('APPROVED', `Assigning approve qualification to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`)
+                                console.log('APPROVED', `Assigning approve qualification to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`)
                                 const tx = await effectsdk.force.assignQualification(qual.approve_qualification_id, sub.account_id)
                                 // console.log(`Transaction: ${tx.transaction_id}`)
                             } catch (error) {
@@ -244,7 +244,7 @@ async function assignQuali() {
                             }
                         } else {
                             try {
-                                // console.log('REJECTED', `Assigning reject qualification to submission\nqualification: ${qual.reject_qualification_id}\naccount: ${sub.account_id}`)
+                                console.log('REJECTED', `Assigning reject qualification to submission\nqualification: ${qual.reject_qualification_id}\naccount: ${sub.account_id}`)
                                 const tx = await effectsdk.force.assignQualification(qual.reject_qualification_id, sub.account_id)
                                 // console.log(`Transaction: ${tx.transaction_id}`)   
                             } catch (error) {
