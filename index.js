@@ -50,7 +50,7 @@ const efx = await connectAccount().catch(console.error)
  * Poll for new submissions and assignqualifications
  *****************************************************************************/
 // await assignQuali()
-const schedule = "30 * * * * *" // Every 30 seconds
+const schedule = "60 * * * * *" // Every 60 seconds
 cron.schedule(schedule, async () => await assignQuali())
 
 /******************************************************************************
