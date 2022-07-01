@@ -199,7 +199,7 @@ async function assignQuali() {
                 for (const sub of submissions) {
                     // Get list of assigned qualifications for user.
                     const userQuali = await effectsdk.force.getAssignedQualifications(sub.account_id)
-                    console.log(`User qualifications: ${JSON.stringify(userQuali, null, 2)}`)
+                    // console.log(`User qualifications: ${JSON.stringify(userQuali, null, 2)}`)
 
                     // Make sure that when iterating through the list we only assign the qualification once.
                         if (sub.data && !userQuali.some(uq => uq.id === qual.approve_qualification_id || uq.id === qual.reject_qualification_id)) {
