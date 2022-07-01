@@ -1,17 +1,45 @@
-import { generateCaptcha, urlCaptcha, verifyCaptcha } from "./captcha.js"
+import dotenv from "dotenv"
+import { existsSync, readFileSync } from "fs"
+
+if (process.env.DEV_ENV === 'dev' && existsSync('.testnet.env')) {
+    console.log('Loading .testnet.env')
+    dotenv.config({path: '.testnet.env', debug: true})
+} else {
+    if (existsSync(".env")) {
+        console.log('Loading .env')
+        dotenv.config({path: ".env", debug: true})
+    }
+}
+
 
 async function validate(submissions, answers, key, forceInfo) {
-    const s = submissions;
-    const a = answers;
-    const captchaPath = "" + forceInfo.campaignId + forceInfo.batchId + forceInfo.accountId + forceInfo.submissionId;
-    const isValid = verifyCaptcha(captchaPath, submissions.captchainput);
-    return isValid && a.calcmul === s.calcmul && a.humanint === s.humanint && a.humantxt?.toString() === s.humantxt?.toString() && a.humanfriendyes === s.humanfriendyes && a.humanSlider > s.humanSlider
+    const fetch = (await import('cross-fetch')).default;
+    const response = await fetch("https://api.twitter.com/2/users/by/username/" + submissions.twitter_handle, {
+        headers: {
+            'Authorization': 'Bearer ' + process.env.TWITTER_BEARER
+        }
+    });
+    const body = await response.json();
+    console.log(body);
+    if (!body.data || !body.data.id) {
+        return false;
+    }
+    const response2 = await fetch(`https://api.twitter.com/2/users/${body.data.id}/following`, {
+        headers: {
+            'Authorization': 'Bearer ' + process.env.TWITTER_BEARER
+        }
+    });
+    const body2 = await response2.json();
+    if (!body2.data) {
+        return false;
+    }
+    const effectaix = body2.data.find(u => u.id === '347935467');
+    return !!(effectaix);
 }
 
 const answers = {
-    "calcmul":"27","humanint":"1","humantxt":"Yes","humanfriendyes":true,"overoveryes":true,"ballofwool":true,"humanSlider":"75","captchainput":"","captchaPath":"  "
 }
-const submission = {"calcmul":"27","humanint":"1","humantxt":"Yes","humanfriendyes":true,"overoveryes":true,"ballofwool":true,"humanSlider":"100","captchainput":"expheheyej","captchaPath":"codcrs"}
+const submission = {"twitter_handle":"laurenspv"}
 
 const forceInfo = {
     campaignId: 0,
