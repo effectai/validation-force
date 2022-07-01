@@ -191,7 +191,12 @@ async function assignQuali() {
             // console.log(`Getting batches for campaign: ${qual.campaign_id}`)
             const batches = await effectsdk.force.getCampaignBatches(qual.campaign_id)
             // console.log(`Got batches:\n${JSON.stringify(batches, null, 2)}`)
-            const validate = new AsyncFunction('submissions', 'answers', 'key', 'verifyCaptcha','forceInfo', qual.validate_function);
+            let validate;
+            if (qual.auto_loop) {
+                validate = new AsyncFunction('submission', 'answer', 'key','forceInfo', qual.validate_function);
+            } else {
+                validate = new AsyncFunction('submissions', 'answers', 'key', 'forceInfo', qual.validate_function);
+            }
             for (const batch of batches) {
                 const submissions = await effectsdk.force.getSubmissionsOfBatch(batch.batch_id)
                 // console.log(`Submissions ${JSON.stringify(submissions, null, 2)}`)
@@ -221,12 +226,12 @@ async function assignQuali() {
                             let wrong = 0
 
                             for (const key in qual.answers) {
-                                (await validate(givenAnswers[key], qual.answers[key], key, verifyCaptcha, forceInfo)) ? correct++ : wrong++
+                                (await validate(givenAnswers[key], qual.answers[key], key, forceInfo)) ? correct++ : wrong++
                             }
                             score = correct / (correct+wrong)
                             // console.log("score", score, "treshold", qual.threshold)
                         } else {
-                            score = await validate(givenAnswers, qual.answers, null, verifyCaptcha, forceInfo)
+                            score = await validate(givenAnswers, qual.answers, null, forceInfo)
                         }
                         if (qual.auto_loop ? score >= qual.threshold : score) {
                             try {
