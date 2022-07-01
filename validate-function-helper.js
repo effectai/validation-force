@@ -1,5 +1,5 @@
 import dotenv from "dotenv"
-import { existsSync, readFileSync } from "fs"
+import { existsSync } from "fs"
 
 if (process.env.DEV_ENV === 'dev' && existsSync('.testnet.env')) {
     console.log('Loading .testnet.env')
@@ -24,17 +24,7 @@ async function validate(submissions, answers, key, forceInfo) {
     if (!body.data || !body.data.id) {
         return false;
     }
-    const response2 = await fetch(`https://api.twitter.com/2/users/${body.data.id}/following`, {
-        headers: {
-            'Authorization': 'Bearer ' + process.env.TWITTER_BEARER
-        }
-    });
-    const body2 = await response2.json();
-    if (!body2.data) {
-        return false;
-    }
-    const effectaix = body2.data.find(u => u.id === '347935467');
-    return !!(effectaix);
+    return true
 }
 
 const answers = {
