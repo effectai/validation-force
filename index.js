@@ -7,18 +7,18 @@ import { existsSync, readFileSync } from "fs"
 import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig.js"
 import { generateCaptcha, urlCaptcha, verifyCaptcha } from "./captcha.js"
 import cron from "node-cron"
-const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
+const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor
 
 console.log('Starting script', process.env.DEV_ENV)
 
 // Init Configuration
 if (process.env.DEV_ENV === 'dev' && existsSync('.testnet.env')) {
     console.log('Loading .testnet.env')
-    dotenv.config({path: '.testnet.env', debug: true})
+    dotenv.config({ path: '.testnet.env', debug: true })
 } else {
     if (existsSync(".env")) {
         console.log('Loading .env')
-        dotenv.config({path: ".env", debug: true})
+        dotenv.config({ path: ".env", debug: true })
     }
 }
 
@@ -160,7 +160,7 @@ async function connectAccount() {
         }
         const effect_account = await effectsdk.connectAccount(provider, eos_accnt)
         console.log(`🔥 Connected to ${config.network} with ${effect_account.accountName}`)
-        return effect_account        
+        return effect_account
     } catch (error) {
         console.error('⚠ connectAccount', error)
     }
@@ -177,7 +177,7 @@ function setUpServer() {
             extended: true
         }))
         server.listen(port, () => console.log(`Server is running on port ${port}!`))
-        return server        
+        return server
     } catch (error) {
         console.error('⚠ setupServer', error)
     }
@@ -189,12 +189,12 @@ async function assignQuali() {
 
         for (const qual of qualifications) {
 
-            // console.log(`Getting batches for campaign: ${qual.campaign_id}`)
+            console.log(`Getting batches and submissions for campaign: ${qual.campaign_id}`)
             const batches = await effectsdk.force.getCampaignBatches(qual.campaign_id)
             // console.log(`Got batches:\n${JSON.stringify(batches, null, 2)}`)
             let validate;
             if (qual.auto_loop) {
-                validate = new AsyncFunction('submission', 'answer', 'key','forceInfo', qual.validate_function);
+                validate = new AsyncFunction('submission', 'answer', 'key', 'forceInfo', qual.validate_function);
             } else {
                 validate = new AsyncFunction('submissions', 'answers', 'key', 'forceInfo', qual.validate_function);
             }
@@ -208,7 +208,8 @@ async function assignQuali() {
                     // console.log(`User qualifications: ${JSON.stringify(userQuali, null, 2)}`)
 
                     // Make sure that when iterating through the list we only assign the qualification once.
-                        if (sub.data && !userQuali.some(uq => uq.id === qual.approve_qualification_id || uq.id === qual.reject_qualification_id)) {
+                    if (sub.data && !userQuali.some(uq => uq.id === qual.approve_qualification_id || uq.id === qual.reject_qualification_id)) {
+                        console.log(`checking submission ${sub.id} for user ${sub.account_id}..`)
                         let givenAnswers = JSON.parse(sub.data)
                         if (givenAnswers.ipfs) {
                             givenAnswers = await effectsdk.force.getIpfsContent(givenAnswers.ipfs)
@@ -222,36 +223,31 @@ async function assignQuali() {
                             batchId: batch.batch_id
                         }
                         let score;
-                        if (qual.auto_loop) {
-                            let correct = 0
-                            let wrong = 0
+                        try {
+                            if (qual.auto_loop) {
+                                let correct = 0
+                                let wrong = 0
 
-                            for (const key in qual.answers) {
-                                (await validate(givenAnswers[key], qual.answers[key], key, forceInfo)) ? correct++ : wrong++
+                                for (const key in qual.answers) {
+                                    (await validate(givenAnswers[key], qual.answers[key], key, forceInfo)) ? correct++ : wrong++
+                                }
+                                score = correct / (correct + wrong)
+                                // console.log("score", score, "treshold", qual.threshold)
+                            } else {
+                                score = await validate(givenAnswers, qual.answers, null, forceInfo)
                             }
-                            score = correct / (correct+wrong)
-                            // console.log("score", score, "treshold", qual.threshold)
-                        } else {
-                            score = await validate(givenAnswers, qual.answers, null, forceInfo)
-                        }
-                        if (qual.auto_loop ? score >= qual.threshold : score) {
-                            try {
+                            if (qual.auto_loop ? score >= qual.threshold : score) {
                                 console.log('APPROVED', `Assigning approve qualification to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`)
                                 const tx = await effectsdk.force.assignQualification(qual.approve_qualification_id, sub.account_id)
                                 // console.log(`Transaction: ${tx.transaction_id}`)
-                            } catch (error) {
-                                console.error(error)
-                                continue
-                            }
-                        } else {
-                            try {
+                            } else {
                                 console.log('REJECTED', `Assigning reject qualification to submission\nqualification: ${qual.reject_qualification_id}\naccount: ${sub.account_id}`)
                                 const tx = await effectsdk.force.assignQualification(qual.reject_qualification_id, sub.account_id)
                                 // console.log(`Transaction: ${tx.transaction_id}`)   
-                            } catch (error) {
-                                console.error(error)
-                                continue
                             }
+                        } catch (error) {
+                            console.error(error)
+                            continue
                         }
                     }
                 }
