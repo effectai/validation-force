@@ -45,15 +45,13 @@ const effectsdk = new EffectClient(config.network)
 const app = setUpServer()
 const efx = await connectAccount().catch(console.error)
 
-// await assignQuali()
-
 /******************************************************************************
  * THE MAIN SHOW
  * Poll for new submissions and assignqualifications
  *****************************************************************************/
 // await assignQuali()
 const schedule = "* * * * *" // Every minute
-cron.schedule(schedule, async () => await assignQuali())
+// cron.schedule(schedule, async () => await assignQuali())
 
 /******************************************************************************
  * SERVER METHODS
