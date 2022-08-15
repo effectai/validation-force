@@ -51,7 +51,7 @@ const efx = await connectAccount().catch(console.error)
  *****************************************************************************/
 // await assignQuali()
 const schedule = "* * * * *" // Every minute
-cron.schedule(schedule, async () => await assignQuali())
+// cron.schedule(schedule, async () => await assignQuali())
 
 /******************************************************************************
  * SERVER METHODS
@@ -236,6 +236,7 @@ async function assignQuali() {
                             } else {
                                 score = await validate(givenAnswers, qual.answers, null, forceInfo)
                             }
+                            console.log(`Submission ${sub.id} has score ${score}`)
                             if (qual.auto_loop ? score >= qual.threshold : score) {
                                 console.log('APPROVED', `Assigning approve qualification to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`)
                                 const tx = await effectsdk.force.assignQualification(qual.approve_qualification_id, sub.account_id)
