@@ -69,8 +69,8 @@ export const urlCaptcha = (inputString) => {
  */
 export const verifyCaptcha = (input, captcha) => {
     const generatedCaptcha = generateCaptcha(input)
-    // console.log(`input: ${input}, captcha: ${captcha}, generatedCaptcha: ${generatedCaptcha}`)
-    return generatedCaptcha === captcha.trim().toLowerCase()
+    console.log(`input: ${input}, captcha: ${captcha}, generatedCaptcha: ${generatedCaptcha}`)
+    return generatedCaptcha.toString().trim().toLowerCase() === captcha.toString().trim().toLowerCase()
 }
 
 export default {generateRandomString, generateCaptcha, urlCaptcha, verifyCaptcha}
