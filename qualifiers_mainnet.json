@@ -3,10 +3,19 @@
         "campaign_id": 6,
         "approve_qualification_id": 118,
         "reject_qualification_id": 119,
-        "validate_function": "const { verifyCaptcha } = (await import(\".\/captcha.js\")).default;\r\n  console.log(verifyCaptcha.toString());  const s = submissions;\r\n    const a = answers;\r\n console.log('🔥submission / answers', s, a);\r\n    const captchaPath = \"\" + forceInfo.campaignId + forceInfo.batchId + forceInfo.accountId + forceInfo.submissionId;\r\n  console.log('🎏🎏🎏🎏', 'captchaPath', captchaPath, 'submissions.captchainput', submissions.captchainput);\r\n   const isValid = verifyCaptcha(submissions.captchaPath, submissions.captchainput);\r\n  console.log(`isValid: ${isValid}, captchaPath: ${captchaPath}, captchaInput: ${submissions.captchainput}`);   return isValid && a.calcmul === s.calcmul && parseInt(s.humanSlider) >= parseInt(a.humanSlider)",
+        "validate_function": "const { verifyCaptcha } = (await import(\".\/captcha.js\")).default;\r\n    const s = submissions;\r\n    const a = answers;\r\n console.log('🔥submission / answers', s, a);\r\n    const captchaPath = \"\" + forceInfo.campaignId + forceInfo.batchId + forceInfo.accountId + forceInfo.submissionId;\r\n  console.log('🎏🎏🎏🎏', 'captchaPath', captchaPath, 'submissions.captchainput', submissions.captchainput);\r\n   const isValid = verifyCaptcha(captchaPath, submissions.captchainput);\r\n  console.log(`isValid: ${isValid}, captchaPath: ${captchaPath}, captchaInput: ${submissions.captchainput}`);   return isValid && a.calcmul === s.calcmul && parseInt(s.humanSlider) >= parseInt(a.humanSlider)",
         "auto_loop": false,
         "answers": {
             "calcmul":"27","humanSlider":"75"
+        }
+    },
+    {
+        "campaign_id": 8,
+        "approve_qualification_id": 37,
+        "reject_qualification_id": 38,
+        "validate_function": "const fetch = (await import('cross-fetch')).default;\r\n    const response = await fetch(\"https:\/\/api.twitter.com\/2\/users\/by\/username\/\" + submissions.twitter_handle, {\r\n        headers: {\r\n            'Authorization': 'Bearer ' + process.env.TWITTER_BEARER\r\n        }\r\n    });\r\n    const body = await response.json();\r\n    console.log(body);\r\n    if (!body.data || !body.data.id) {\r\n        return false;\r\n    }\r\n    return true;",
+        "auto_loop": false,
+        "answers": {
         }
     }
 ]

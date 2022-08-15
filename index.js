@@ -43,15 +43,15 @@ const config = {
  */
 const effectsdk = new EffectClient(config.network)
 const app = setUpServer()
-const efx = await connectAccount().catch(console.error)
+// const efx = await connectAccount().catch(console.error)
 
 /******************************************************************************
  * THE MAIN SHOW
  * Poll for new submissions and assignqualifications
  *****************************************************************************/
-await assignQuali()
+// await assignQuali()
 const schedule = "* * * * *" // Every minute
-// cron.schedule(schedule, async () => await assignQuali())
+cron.schedule(schedule, async () => await assignQuali())
 
 /******************************************************************************
  * SERVER METHODS
@@ -189,7 +189,7 @@ async function assignQuali() {
 
         for (const qual of qualifications) {
 
-            console.log(`Getting batches and submissions for campaign: ${qual.campaign_id}`)
+            // console.log(`Getting batches and submissions for campaign: ${qual.campaign_id}`)
             const batches = await effectsdk.force.getCampaignBatches(qual.campaign_id)
 
             // console.log(`Got batches:\n${JSON.stringify(batches, null, 2)}`)
@@ -210,7 +210,7 @@ async function assignQuali() {
 
                     // Make sure that when iterating through the list we only assign the qualification once.
                     if (sub.data && !userQuali.some(uq => uq.id === qual.approve_qualification_id || uq.id === qual.reject_qualification_id)) {
-                        console.log(`checking submission ${sub.id} for user ${sub.account_id}..`)
+                        // console.log(`checking submission ${sub.id} for user ${sub.account_id}..`)
                         let givenAnswers = JSON.parse(sub.data)
                         if (givenAnswers.ipfs) {
                             givenAnswers = await effectsdk.force.getIpfsContent(givenAnswers.ipfs)
@@ -242,7 +242,7 @@ async function assignQuali() {
                                 // )
                                 score = await validate(givenAnswers, qual.answers, null, forceInfo)
                             }
-                            console.log(`Submission ${sub.id} has score ${score}`)
+                            // console.log(`Submission ${sub.id} has score ${score}`)
                             if (qual.auto_loop ? score >= qual.threshold : score) {
                                 console.log('APPROVED', `Assigning approve qualification to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`)
                                 const tx = await effectsdk.force.assignQualification(qual.approve_qualification_id, sub.account_id)

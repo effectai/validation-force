@@ -36,6 +36,7 @@ const generateRandomString = () => {
  */
 export const generateCaptcha = (inputString) => {
     const inputFormat = `${config.captchaSecret}${inputString}:${config.captchaChars}:${config.letters}`
+    // console.error(inputFormat)
 
     // Hash the input
     const hash = createHash("md5").update(inputFormat).digest()
@@ -69,7 +70,7 @@ export const urlCaptcha = (inputString) => {
  */
 export const verifyCaptcha = (input, captcha) => {
     const generatedCaptcha = generateCaptcha(input)
-    console.log(`input: ${input}, captcha: ${captcha}, generatedCaptcha: ${generatedCaptcha}`)
+    // console.log(`input: ${input}, captcha: ${captcha}, generatedCaptcha: ${generatedCaptcha}`)
     return generatedCaptcha.toString().trim().toLowerCase() === captcha.toString().trim().toLowerCase()
 }
 
