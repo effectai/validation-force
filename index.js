@@ -45,13 +45,15 @@ const effectsdk = new EffectClient(config.network)
 const app = setUpServer()
 const efx = await connectAccount().catch(console.error)
 
+// await assignQuali()
+
 /******************************************************************************
  * THE MAIN SHOW
  * Poll for new submissions and assignqualifications
  *****************************************************************************/
 // await assignQuali()
 const schedule = "* * * * *" // Every minute
-// cron.schedule(schedule, async () => await assignQuali())
+cron.schedule(schedule, async () => await assignQuali())
 
 /******************************************************************************
  * SERVER METHODS
@@ -98,7 +100,7 @@ app.get("/batches", async (req, res) => {
 app.get("/accquali", async (req, res) => {
     try {
         console.log(req.query)
-        const result = await effectsdk.force.getAssignedQualifications(req.query.account)
+        const result = await effectsdk.force.getAssignedQualifications(null, null, false, req.query.account)
         console.log(result)
         res.json(result)
     } catch (error) {
@@ -191,6 +193,7 @@ async function assignQuali() {
 
             console.log(`Getting batches and submissions for campaign: ${qual.campaign_id}`)
             const batches = await effectsdk.force.getCampaignBatches(qual.campaign_id)
+
             // console.log(`Got batches:\n${JSON.stringify(batches, null, 2)}`)
             let validate;
             if (qual.auto_loop) {
@@ -204,7 +207,7 @@ async function assignQuali() {
 
                 for (const sub of submissions) {
                     // Get list of assigned qualifications for user.
-                    const userQuali = await effectsdk.force.getAssignedQualifications(sub.account_id)
+                    const userQuali = await effectsdk.force.getAssignedQualifications(null, null, null, sub.account_id)
                     // console.log(`User qualifications: ${JSON.stringify(userQuali, null, 2)}`)
 
                     // Make sure that when iterating through the list we only assign the qualification once.
@@ -234,6 +237,11 @@ async function assignQuali() {
                                 score = correct / (correct + wrong)
                                 // console.log("score", score, "treshold", qual.threshold)
                             } else {
+                                // console.log("validating answers", 
+                                //     `givenAnswers: ${JSON.stringify(givenAnswers, null, 2)},
+                                //     answers: ${JSON.stringify(qual.answers, null, 2)},
+                                //     forceInfo: ${JSON.stringify(forceInfo, null, 2)}`
+                                // )
                                 score = await validate(givenAnswers, qual.answers, null, forceInfo)
                             }
                             console.log(`Submission ${sub.id} has score ${score}`)
