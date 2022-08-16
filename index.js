@@ -98,7 +98,7 @@ app.get("/batches", async (req, res) => {
 app.get("/accquali", async (req, res) => {
     try {
         console.log(req.query)
-        const result = await effectsdk.force.getAssignedQualifications(null, null, false, req.query.account)
+        const result = await effectsdk.force.getAssignedQualifications(null, 100, true, req.query.account)
         console.log(result)
         res.json(result)
     } catch (error) {
@@ -205,7 +205,7 @@ async function assignQuali() {
 
                 for (const sub of submissions) {
                     // Get list of assigned qualifications for user.
-                    const userQuali = await effectsdk.force.getAssignedQualifications(null, null, null, sub.account_id)
+                    const userQuali = await effectsdk.force.getAssignedQualifications(null, 100, true, sub.account_id)
                     // console.log(`User qualifications: ${JSON.stringify(userQuali, null, 2)}`)
 
                     // Make sure that when iterating through the list we only assign the qualification once.
