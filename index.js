@@ -51,7 +51,7 @@ const efx = await connectAccount().catch(console.error)
  *****************************************************************************/
 await assignQuali()
 const schedule = "* * * * *" // Every minute
-// cron.schedule(schedule, async () => await assignQuali())
+cron.schedule(schedule, async () => await assignQuali())
 
 /******************************************************************************
  * SERVER METHODS

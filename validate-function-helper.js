@@ -14,7 +14,7 @@ if (process.env.DEV_ENV === 'dev' && existsSync('.testnet.env')) {
 
 async function validate(submissions, answers, key, forceInfo) {
     const { generateCaptcha, urlCaptcha, verifyCaptcha }  = (await import("./captcha.js")).default; 
-    verifyCaptcha()
+    // verifyCaptcha()
     const fetch = (await import('cross-fetch')).default;
     const response = await fetch("https://api.twitter.com/2/users/by/username/" + submissions.twitter_handle, {
         headers: {
