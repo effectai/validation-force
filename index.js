@@ -57,7 +57,12 @@ cron.schedule(schedule, async () => await assignQuali())
  * SERVER METHODS
  *****************************************************************************/
 app.get("/", (req, res) => {
-    res.json("🔥").catch(console.error)
+    try {
+        res.json("🔥")
+    } catch (error) {
+        console.error(error)
+        res.status(500).send(error)
+    }
 })
 
 // Use to generateCaptcha
@@ -244,11 +249,11 @@ async function assignQuali() {
                             }
                             // console.log(`Submission ${sub.id} has score ${score}`)
                             if (qual.auto_loop ? score >= qual.threshold : score) {
-                                console.log('APPROVED', `Assigning approve qualification to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`)
+                                console.log('APPROVED', `Assigning approve qualification for campaign ${qual.campaign_id} to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`)
                                 const tx = await effectsdk.force.assignQualification(qual.approve_qualification_id, sub.account_id)
                                 // console.log(`Transaction: ${tx.transaction_id}`)
                             } else {
-                                console.log('REJECTED', `Assigning reject qualification to submission\nqualification: ${qual.reject_qualification_id}\naccount: ${sub.account_id}`)
+                                console.log('REJECTED', `Assigning reject qualification for campaign ${qual.campaign_id} to submission\nqualification: ${qual.reject_qualification_id}\naccount: ${sub.account_id}`)
                                 const tx = await effectsdk.force.assignQualification(qual.reject_qualification_id, sub.account_id)
                                 // console.log(`Transaction: ${tx.transaction_id}`)   
                             }
