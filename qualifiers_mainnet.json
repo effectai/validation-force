@@ -17,5 +17,14 @@
         "auto_loop": false,
         "answers": {
         }
+    },
+    {
+        "campaign_id": 21,
+        "approve_qualification_id": 45,
+        "reject_qualification_id": 46,
+        "validate_function": "return true;",
+        "auto_loop": false,
+        "answers": {
+        }
     }
 ]
