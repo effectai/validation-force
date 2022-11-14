@@ -1,4 +1,8 @@
-[
+import { readFile } from 'fs/promises'
+
+const campaign14 = await readFile('qualis/testnet/14_human.string.js', 'utf8')
+
+export default [
     { 
         "campaign_id": 9,
         "approve_qualification_id": 25,
@@ -14,7 +18,7 @@
         "campaign_id": 14,
         "approve_qualification_id": 31,
         "reject_qualification_id": 32,
-        "validate_function": "const { verifyCaptcha }  = (await import(\".\/captcha.js\")).default;\r\n    const s = submissions;\r\n    const a = answers;\r\n console.log('🔥submission', s, '🚒Answers', a);\r\n    const captchaPath = \"\" + forceInfo.campaignId + forceInfo.batchId + forceInfo.accountId + forceInfo.submissionId;\r\n  console.log('🎏🎏🎏🎏', captchaPath);\r\n   const isValid = verifyCaptcha(captchaPath, submissions.captchainput);\r\n    return isValid && a.calcmul === s.calcmul && s.humanSlider >= a.humanSlider",
+        "validate_function": campaign14,
         "auto_loop": false,
         "answers": {
             "calcmul":"27","humanint":"1","humantxt":"Yes","humanfriendyes":true,"overoveryes":true,"ballofwool":true,"humanSlider":"75"
