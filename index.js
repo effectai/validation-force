@@ -304,13 +304,32 @@ async function assignQuali() {
                 );
               }
 
-              // 🔥 This is the big shebang where the qualification is assigned to the user.
-              console.log('✅✅✅ Assigning qualification with id', qual.approve_qualification_id, 'to user', sub.account_id, 'with score', score)
-              const tx = await effectsdk.force.assignQualification(
-                qual.approve_qualification_id,
-                sub.account_id,
-                score
-              );
+              if (qual.auto_loop ? score >= qual.threshold : score) {
+                console.log(
+                  "APPROVED",
+                  `Assigning approve qualification for campaign ${qual.campaign_id} to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`
+                );
+                const quali_val = { status: "Accepted", score: score };
+                const tx = await effectsdk.force.assignQualification(
+                  qual.approve_qualification_id,
+                  sub.account_id,
+                  JSON.stringify(quali_val)
+                );
+                // console.log(`Transaction: ${tx.transaction_id}`)
+              } else {
+                console.log(
+                  "REJECTED",
+                  `Assigning reject qualification for campaign ${qual.campaign_id} to submission\nqualification: ${qual.reject_qualification_id}\naccount: ${sub.account_id}`
+                );
+                const quali_val = { status: "Rejected", score: score };
+                const tx = await effectsdk.force.assignQualification(
+                  qual.reject_qualification_id,
+                  sub.account_id,
+                  JSON.stringify(quali_val)
+                );
+                // console.log(`Transaction: ${tx.transaction_id}`)
+              }
+
             } catch (error) {
               console.error(error);
               continue;
