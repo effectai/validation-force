@@ -1,5 +1,8 @@
 // Imports need to be relative from the root of the project
-import fetch from 'cross-fetch';
+// imports need to use require. import is not supported
+// Also make sure that the import is present in index.js
+
+const fetch = require('cross-fetch');
 
 const response = await fetch(`https://api.twitter.com/2/users/by/username/${submissions.twitter_handle}`, {
     headers: { 'Authorization': `Bearer ${process.env.TWITTER_BEARER}` }
