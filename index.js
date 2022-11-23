@@ -12,25 +12,26 @@ const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 import qualifiers_mainnet from "./qualifiers_mainnet.js";
 import qualifiers_testnet from "./qualifiers_testnet.js";
 
-console.log("Starting script", process.env.DEV_ENV);
+console.log("Starting script", process.env.NET_ENV);
 
 // Init Configuration
-if (process.env.DEV_ENV === "dev" && existsSync(".testnet.env")) {
+if (process.env.NET_ENV === "testnet" && existsSync(".testnet.env")) {
   console.log("Loading .testnet.env");
   dotenv.config({ path: ".testnet.env", debug: true });
-} else {
-  if (existsSync(".env")) {
+} else if (existsSync(".env")) {
     console.log("Loading .env");
-    dotenv.config({ path: ".env", debug: true });
-  }
+    dotenv.config({ path: ".env", debug: false });
+} else {
+  console.log("No .env file found");
+  dotenv.config({ path: ".env", debug: true });
 }
 
 /**
  * Super Official Validated Moderated List of Qualifications and their corresponding Campaigns.
  */
-const qualifications = process.env.DEV_ENV === 'dev'
-? qualifiers_testnet
-: qualifiers_mainnet;
+const qualifications = process.env.NET_ENV === 'mainnet'
+? qualifiers_mainnet
+: qualifiers_testnet;
 
 console.log(`Using ${JSON.stringify(qualifications)} for this round`)
 
