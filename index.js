@@ -21,9 +21,6 @@ if (process.env.NET_ENV === "testnet" && existsSync(".testnet.env")) {
 } else if (existsSync(".env")) {
     console.log("Loading .env");
     dotenv.config({ path: ".env", debug: false });
-} else {
-  console.log("No .env file found");
-  dotenv.config({ path: ".env", debug: true });
 }
 
 /**
@@ -57,7 +54,7 @@ const efx = await connectAccount().catch(console.error);
  * THE MAIN SHOW
  * Poll for new submissions and assignqualifications
  *****************************************************************************/
-// await assignQuali();
+await assignQuali();
 // const schedule = "* * * * *"; // Every minute
 // cron.schedule(schedule, async () => await assignQuali());
 
