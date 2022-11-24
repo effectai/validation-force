@@ -277,7 +277,7 @@ async function assignQuali() {
               batchId: batch.batch_id,
             };
 
-            let score;
+            let valid;
             try {
               if (qual.auto_loop) {
                 let correct = 0;
@@ -293,15 +293,15 @@ async function assignQuali() {
                     ? correct++
                     : wrong++;
                 }
-                score = correct / (correct + wrong);
-                console.log("score", score, "treshold", qual.threshold)
+                valid = correct / (correct + wrong);
+                console.log("valid", valid, "treshold", qual.threshold)
               } else {
                 console.log("validating answers",
                     `givenAnswers: ${JSON.stringify(givenAnswers, null, 2)},
                     answers: ${JSON.stringify(qual.answers, null, 2)},
                     forceInfo: ${JSON.stringify(forceInfo, null, 2)}`
                 )
-                score = await validate(
+                valid = await validate(
                   givenAnswers,
                   qual.answers,
                   null,
@@ -309,12 +309,12 @@ async function assignQuali() {
                 );
               }
 
-              if (qual.auto_loop ? score >= qual.threshold : score) {
+              if (qual.auto_loop ? valid >= qual.threshold : valid) {
                 console.log(
                   "APPROVED",
                   `Assigning approve qualification for campaign ${qual.campaign_id} to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`
                 );
-                const quali_val = { status: "Accepted", score: score };
+                const quali_val = { status: "Accepted", valid: valid };
                 const tx = await effectsdk.force.assignQualification(
                   qual.approve_qualification_id,
                   sub.account_id,
@@ -326,7 +326,7 @@ async function assignQuali() {
                   "REJECTED",
                   `Assigning reject qualification for campaign ${qual.campaign_id} to submission\nqualification: ${qual.reject_qualification_id}\naccount: ${sub.account_id}`
                 );
-                const quali_val = { status: "Rejected", score: score };
+                const quali_val = { status: "Rejected", valid: valid };
                 const tx = await effectsdk.force.assignQualification(
                   qual.reject_qualification_id,
                   sub.account_id,
