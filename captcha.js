@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 import { existsSync } from "fs"
 
 // Configuration Object
-if (process.env.DEV_ENV === 'dev' && existsSync('.testnet.env')) {
+if (process.env.NET_ENV === 'testnet' && existsSync('.testnet.env')) {
     console.log('Loading .testnet.env')
     dotenv.config({path: '.testnet.env', debug: true})
 } else {

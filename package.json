@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "DEV_ENV=dev nodemon index.js"
+    "dev": "NET_ENV=testnet nodemon index.js",
+    "prod": "NET_ENV=mainnet nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,7 @@
   },
   "homepage": "https://github.com/effectai/validation-force#readme",
   "dependencies": {
-    "@effectai/effect-js": "^0.3.17",
+    "@effectai/effect-js": "^0.3.20",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
