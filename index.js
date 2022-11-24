@@ -57,9 +57,9 @@ const efx = await connectAccount().catch(console.error);
  * THE MAIN SHOW
  * Poll for new submissions and assignqualifications
  *****************************************************************************/
-// await assignQuali();
-// const schedule = "* * * * *"; // Every minute
-// cron.schedule(schedule, async () => await assignQuali());
+await assignQuali();
+const schedule = "* * * * *"; // Every minute
+cron.schedule(schedule, async () => await assignQuali());
 
 /******************************************************************************
  * SERVER METHODS
@@ -279,17 +279,21 @@ async function assignQuali() {
 
             let valid;
             try {
+              let quali_value;
               if (qual.auto_loop) {
                 let correct = 0;
                 let wrong = 0;
 
+                // { 'value': 'true', 'quali_value': 'insta_handle }
                 for (const key in qual.answers) {
-                  (await validate(
+                  const result = await validate(
                     givenAnswers[key],
                     qual.answers[key],
                     key,
                     forceInfo
-                  ))
+                  );
+                  quali_value = result.quali_value;
+                  result.value
                     ? correct++
                     : wrong++;
                 }
@@ -301,12 +305,14 @@ async function assignQuali() {
                     answers: ${JSON.stringify(qual.answers, null, 2)},
                     forceInfo: ${JSON.stringify(forceInfo, null, 2)}`
                 )
-                valid = await validate(
+                const result = await validate(
                   givenAnswers,
                   qual.answers,
                   null,
                   forceInfo
-                );
+                )
+                valid = result.value;
+                quali_value = result.quali_value;
               }
 
               if (qual.auto_loop ? valid >= qual.threshold : valid) {
@@ -314,11 +320,10 @@ async function assignQuali() {
                   "APPROVED",
                   `Assigning approve qualification for campaign ${qual.campaign_id} to submission\nqualification: ${qual.approve_qualification_id}\naccount: ${sub.account_id}`
                 );
-                const quali_val = { status: "Accepted", valid: valid };
                 const tx = await effectsdk.force.assignQualification(
                   qual.approve_qualification_id,
                   sub.account_id,
-                  JSON.stringify(quali_val)
+                  JSON.stringify(quali_value ?? undefined)
                 );
                 console.log(`Transaction: ${tx.transaction_id}`)
               } else {
@@ -326,18 +331,17 @@ async function assignQuali() {
                   "REJECTED",
                   `Assigning reject qualification for campaign ${qual.campaign_id} to submission\nqualification: ${qual.reject_qualification_id}\naccount: ${sub.account_id}`
                 );
-                const quali_val = { status: "Rejected", valid: valid };
                 const tx = await effectsdk.force.assignQualification(
                   qual.reject_qualification_id,
                   sub.account_id,
-                  JSON.stringify(quali_val)
+                  JSON.stringify(quali_value ?? undefined)
                 );
                 console.log(`Transaction: ${tx.transaction_id}`)
               }
 
             } catch (error) {
-              console.error(error);
-              continue;
+              console.error(JSON.stringify(error));
+              // continue;
             }
           }
         }
