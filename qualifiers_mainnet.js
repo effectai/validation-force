@@ -27,7 +27,7 @@ export default [
         "campaign_id": 21,
         "approve_qualification_id": 45,
         "reject_qualification_id": 46,
-        "validate_function": "{ 'value': 'true', 'quali_value': 'insta_handle }",
+        "validate_function": "{ 'value': 'true', 'quali_value': 'insta_handle' }",
         "auto_loop": false,
         "answers": {
         }
