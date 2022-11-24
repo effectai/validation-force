@@ -11,7 +11,7 @@ const response = await fetch(`https://api.twitter.com/2/users/by/username/${subm
 const body = await response.json();
 console.log(body);
 if (!body.data || !body.data.id) {
-    return { valid: false, twitter_handle: submissions.twitter_handle }
+    return { value: false, quali_value: submissions.twitter_handle }
 } else {
-    return { valid: true, twitter_handle: submissions.twitter_handle }
+    return { value: true, quali_value: submissions.twitter_handle }
 }

@@ -9,4 +9,9 @@ const captchaPath = `${forceInfo.campaignId}${forceInfo.batchId}${forceInfo.acco
 console.log('🎏🎏🎏🎏', captchaPath)
 
 const isValid = verifyCaptcha(captchaPath, submissions.captchainput);
-return isValid && a.calcmul === s.calcmul && s.humanSlider >= a.humanSlider
+
+if (isValid && a.calcmul === s.calcmul && s.humanSlider >= a.humanSlider) {
+    return { value: true, quali_value: 'human' }
+} else {
+    return { value: false, quali_value: 'bot' }
+}

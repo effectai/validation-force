@@ -10,4 +10,10 @@ const captchaPath = `${forceInfo.campaignId}${forceInfo.batchId}${forceInfo.acco
 console.log('🎏🎏🎏🎏', 'captchaPath', captchaPath, 'submissions.captchainput', submissions.captchainput);
 const isValid = verifyCaptcha(captchaPath, submissions.captchainput);
 console.log(`isValid: ${isValid}, captchaPath: ${captchaPath}, captchaInput: ${submissions.captchainput}`);
-return isValid && a.calcmul === s.calcmul && parseInt(s.humanSlider) >= parseInt(a.humanSlider)
+if (isValid && a.calcmul === s.calcmul && parseInt(s.humanSlider) >= parseInt(a.humanSlider))
+    return { value: true, quali_value: 'human' }
+else {
+    return { value: false, quali_value: 'bot' }
+}
+
+
