@@ -2,6 +2,7 @@ import { readFile } from 'fs/promises'
 
 const campaign7 = await readFile('qualis/testnet/7_pirate.string.js', 'utf8')
 const campaign14 = await readFile('qualis/testnet/14_human.string.js', 'utf8')
+const campaign40 = await readFile('qualis/testnet/40_image.string.js', 'utf8')
 export default [
     { 
         "campaign_id": 7,
@@ -32,5 +33,16 @@ export default [
         "answers": {
             "calcmul":"27","humanint":"1","humantxt":"Yes","humanfriendyes":true,"overoveryes":true,"ballofwool":true,"humanSlider":"75"
         }
+    },
+    {
+        "campaign_id": 40,
+        "approve_qualification_id": 146,
+        "reject_qualification_id": 147,
+        "validate_function": campaign40,
+        "auto_loop": true,
+        "threshold": 0.8,
+        "answers": [
+            "B", "B", "C", "A", "D", "D", "B", "A", "D", "A", "C", "C", "B", "A", "B", "B", "C", "D", "B", "D", "B", "C", "A", "B", "B"
+        ]
     }
 ]
