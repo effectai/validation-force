@@ -55,8 +55,8 @@ const efx = await connectAccount().catch(console.error);
  * Poll for new submissions and assignqualifications
  *****************************************************************************/
 await assignQuali();
-// const schedule = "* * * * *"; // Every minute
-// cron.schedule(schedule, async () => await assignQuali());
+const schedule = "* * * * *"; // Every minute
+cron.schedule(schedule, async () => await assignQuali());
 
 /******************************************************************************
  * SERVER METHODS
