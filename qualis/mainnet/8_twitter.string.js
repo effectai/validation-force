@@ -9,6 +9,11 @@ const response = await fetch(`https://api.twitter.com/2/users/by/username/${subm
 });
 
 const body = await response.json();
+
+// sleep for 1 second to avoid rate limiting
+await new Promise(resolve => setTimeout(resolve, 1000));
+
+
 console.log(body);
 if (!body.data || !body.data.id) {
     return { value: false, quali_value: submissions.twitter_handle }
