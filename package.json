@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/effectai/validation-force#readme",
   "dependencies": {
-    "@effectai/effect-js": "^0.3.20",
+    "@effectai/effect-js": "^0.3.21",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
