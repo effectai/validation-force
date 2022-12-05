@@ -20,15 +20,15 @@ if (process.env.NET_ENV === "testnet" && existsSync(".testnet.env")) {
   dotenv.config({ path: ".testnet.env", debug: true });
 } else if (existsSync(".env")) {
     console.log("Loading .env");
-    dotenv.config({ path: ".env", debug: false });
+    dotenv.config({ path: ".env", debug: true });
 }
 
 /**
  * Super Official Validated Moderated List of Qualifications and their corresponding Campaigns.
  */
 const qualifications = process.env.NET_ENV === 'mainnet'
-? qualifiers_mainnet
-: qualifiers_testnet;
+? JSON.parse(qualifiers_mainnet)
+: JSON.parse(qualifiers_testnet);
 
 console.log(`Using ${JSON.stringify(qualifications)} for this round`)
 
@@ -54,9 +54,9 @@ const efx = await connectAccount().catch(console.error);
  * THE MAIN SHOW
  * Poll for new submissions and assignqualifications
  *****************************************************************************/
-await assignQuali();
+// await assignQuali();
 const schedule = "* * * * *"; // Every minute
-cron.schedule(schedule, async () => await assignQuali());
+// cron.schedule(schedule, async () => await assignQuali());
 
 /******************************************************************************
  * SERVER METHODS
@@ -207,14 +207,14 @@ async function assignQuali() {
   console.log("checking for submissions to assign qualifications..");
   try {
     for (const qual of qualifications) {
-      console.log(`Getting batches and submissions for campaign: ${qual.campaign_id}`)
+      console.log(`🚇️🚇️🚇️ Getting batches and submissions for campaign: ${JSON.stringify(qual)}`)
       const batches = await effectsdk.force.getCampaignBatches(
         qual.campaign_id
       );
 
-      console.log(qual.validate_function)
+      console.log("🐯🐯🐯🐯 Using the following qual.validate_function", qual.validate_function)
 
-      // console.log(`Got batches:\n${JSON.stringify(batches, null, 2)}`)
+      // console.log(`🛀🏽🛀🏽🛀🏽 Got batches:\n${JSON.stringify(batches, null, 2)}`)
       let validate;
       if (qual.auto_loop) {
         validate = new AsyncFunction(
@@ -258,14 +258,14 @@ async function assignQuali() {
                 uq.id === qual.reject_qualification_id
             );
           if (check) {
-            console.log(`checking submission ${sub.id} for user ${sub.account_id}..`)
+            console.log(`🦁🦁🦁 checking submission ${sub.id} for user ${sub.account_id}..`)
             let givenAnswers = JSON.parse(sub.data);
             if (givenAnswers.ipfs) {
               givenAnswers = await effectsdk.force.getIpfsContent(
                 givenAnswers.ipfs
               );
             }
-            console.log("givenAnswers", givenAnswers)
+            console.log("🫂🫂🫂 givenAnswers", givenAnswers)
             const forceInfo = {
               accountId: sub.account_id,
               submissionId: sub.id,
@@ -275,8 +275,8 @@ async function assignQuali() {
             };
 
             let valid;
+            let quali_value;
             try {
-              let quali_value;
               if (qual.auto_loop) {
                 let correct = 0;
                 let wrong = 0;
@@ -297,7 +297,7 @@ async function assignQuali() {
                 valid = correct / (correct + wrong);
                 console.log("valid", valid, "treshold", qual.threshold)
               } else {
-                console.log("validating answers",
+                console.log("🐳🐳🐳 validating answers",
                     `givenAnswers: ${JSON.stringify(givenAnswers, null, 2)},
                     answers: ${JSON.stringify(qual.answers, null, 2)},
                     forceInfo: ${JSON.stringify(forceInfo, null, 2)}`
@@ -307,10 +307,17 @@ async function assignQuali() {
                   qual.answers,
                   null,
                   forceInfo
-                )
+                ).catch((e) => {
+                  console.log("🌪️🌪️🌪️ error validating answers", e)
+                });
+                console.log("😴😴😴 result", result)
                 valid = result.value;
                 quali_value = result.quali_value;
               }
+
+              console.log("🔋🔋🔋 valid", valid, "quali", quali_value, "Assign Quali now...")
+
+              console.log("🏗️🏗️🏗️ qual.autoloop", qual.auto_loop, valid, qual.threshold)
 
               if (qual.auto_loop ? valid >= qual.threshold : valid) {
                 console.log(
