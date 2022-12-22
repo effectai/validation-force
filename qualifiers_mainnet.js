@@ -1,4 +1,3 @@
-import { readFile } from 'fs/promises'
 import campaign6 from './qualis/mainnet/6_human.string.js'
 import campaign8 from './qualis/mainnet/8_twitter.string.js'
 
