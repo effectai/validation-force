@@ -2,7 +2,7 @@
 // imports need to use require. import is not supported
 // Also make sure that the import is present in index.js
 
-const newLocal = `
+export default `
 const fetch = (await import('cross-fetch')).default;
 
 const response = await fetch("https://api.twitter.com/2/users/by/username/" + submissions.twitter_handle, {
@@ -24,5 +24,3 @@ if (!body.data || !body.data.id) {
     return { value: true, quali_value: submissions.twitter_handle }
 }
 `
-
-export default String(newLocal)

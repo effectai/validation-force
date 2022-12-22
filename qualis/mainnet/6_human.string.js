@@ -2,11 +2,11 @@
 // imports need to use require. import is not supported
 // Also make sure that the import is present in index.js
 
-const tmpString = `
+export default `
 const { verifyCaptcha } = (await import('./captcha.js')).default
 const s = submissions;
 const a = answers;
-console.log('🔥submission / answers', s, a);
+console.log('🔥submissions / answers', s, a);
 const captchaPath = "" + forceInfo.campaignId + forceInfo.batchId + forceInfo.accountId + forceInfo.submissionId
 console.log('🎏🎏🎏🎏', 'captchaPath', captchaPath, 'submissions.captchainput', submissions.captchainput);
 const isValid = verifyCaptcha(captchaPath, submissions.captchainput);
@@ -17,6 +17,3 @@ else {
     return { value: false, quali_value: 'bot' }
 }
 `
-
-export default String(tmpString)
-
