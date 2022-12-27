@@ -25,7 +25,8 @@ export default JSON.stringify([
         "campaign_id": 21,
         "approve_qualification_id": 45,
         "reject_qualification_id": 46,
-        "validate_function": "return { 'value': true, 'quali_value': submissions.insta_handle }",
+        "validate_function": "return { value: true }",
+        // "validate_function": "return { 'value': true, 'quali_value': submissions.insta_handle }",
         "auto_loop": false,
         "answers": {
         }
@@ -34,7 +35,8 @@ export default JSON.stringify([
         "campaign_id": 22,
         "approve_qualification_id": 43,
         "reject_qualification_id": 44,
-        "validate_function": "return { 'value': true, 'quali_value': submissions.youtube_handle }",
+        "validate_function": "return { value: true }",
+        // "validate_function": "return { 'value': true, 'quali_value': submissions.youtube_handle }",
         "auto_loop": false,
         "answers": {
         }
